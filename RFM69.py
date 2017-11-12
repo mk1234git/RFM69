@@ -112,6 +112,8 @@ class RFM69(object):
         while self.readReg(REG_SYNCVALUE1) != 0x55:
             self.writeReg(REG_SYNCVALUE1, 0x55)
 
+        print "Version: 0x%02X" % self.readReg(REG_VERSION)
+            
         #write config
         for value in self.CONFIG.values():
             self.writeReg(value[0], value[1])
@@ -130,6 +132,15 @@ class RFM69(object):
         self.writeReg(REG_FRFMID, FRF >> 8)
         self.writeReg(REG_FRFLSB, FRF)
 
+    def getFrf(self):
+        msb = self.readReg(REG_FRFMSB)
+        mid = self.readReg(REG_FRFMID)
+        lsb = self.readReg(REG_FRFLSB)
+        return msb << 16 | mid << 8 | lsb
+    
+    def getFreqMHz(self):
+        return self.getFrf() * 61.0 / 1e6 #MHz
+        
     def setMode(self, newMode):
         if newMode == self.mode:
             return
